@@ -1,5 +1,5 @@
 // Packages
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 // Entities
 import { Contact } from './entities/contact.entity';
 // Services
@@ -13,7 +13,7 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post()
-  async create(@Body() createContactDto: CreateContactDto) {
+  async create(@Body() createContactDto: CreateContactDto): Promise<Contact> {
     return this.contactService.create(createContactDto);
   }
 
@@ -23,17 +23,20 @@ export class ContactController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id', ParseIntPipe) id: string): Promise<Contact> {
     return this.contactService.findOne(id);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: string,
+    @Body() updateContactDto: UpdateContactDto,
+  ): Promise<Contact> {
     return this.contactService.update(id, updateContactDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id', ParseIntPipe) id: string): Promise<void> {
     return this.contactService.remove(id);
   }
 }

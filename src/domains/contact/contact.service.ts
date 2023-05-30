@@ -1,6 +1,6 @@
 // Packages
-import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 // Entities
 import { Contact } from './entities/contact.entity';
@@ -15,8 +15,12 @@ export class ContactService {
     private readonly contactRepository: Repository<Contact>,
   ) {}
 
-  async create(createContactDto: CreateContactDto) {
-    return 'This action adds a new contact';
+  async create(createContactDto: CreateContactDto): Promise<Contact> {
+    const contact = new Contact();
+
+    Object.assign(contact, createContactDto);
+
+    return this.contactRepository.save(contact);
   }
 
   async findAll(): Promise<Contact[]> {
@@ -27,8 +31,16 @@ export class ContactService {
     return this.contactRepository.findOneBy({ id });
   }
 
-  async update(id: string, updateContactDto: UpdateContactDto) {
-    return `This action updates a #${id} contact`;
+  async update(id: string, updateContactDto: UpdateContactDto): Promise<Contact> {
+    const contact = await this.findOne(id);
+
+    if (!contact) {
+      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+    }
+
+    Object.assign(contact, updateContactDto);
+
+    return this.contactRepository.save(contact);
   }
 
   async remove(id: string): Promise<void> {
