@@ -1,24 +1,18 @@
 // Packages
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // Modules
 import { UserModule } from './domains/user/user.module';
 import { AuthModule } from './domains/auth/auth.module';
-import { ProfileModule } from './domains/profile/profile.module';
 import { ContactModule } from './domains/contact/contact.module';
 // Configs
-import ormConfig from './configs/orm.config';
+import { ormConfig } from './configs/orm.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: '.env', isGlobal: true }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: ormConfig.getTypeormConfig,
-    }),
-    ProfileModule,
+    ConfigModule.forRoot({ envFilePath: `.${process.env.NODE_ENV}.env`, isGlobal: true }),
+    TypeOrmModule.forRoot({ ...ormConfig, autoLoadEntities: true }),
     UserModule,
     ContactModule,
     AuthModule,

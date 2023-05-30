@@ -1,22 +1,21 @@
 // Packages
-import { DataSourceOptions } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
+import { DataSource } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-const config = {
-  getTypeormConfig: (configService: ConfigService): DataSourceOptions => ({
-    type: 'postgres',
-    host: configService.get('POSTGRES_HOST'),
-    port: Number(configService.get('POSTGRES_PORT')),
-    database: configService.get('POSTGRES_DATABASE'),
-    username: configService.get('POSTGRES_USERNAME'),
-    password: configService.get('POSTGRES_PASSWORD'),
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-    synchronize: false,
-    //   cli: {
-    //     migrationsDir: 'src/migrations',
-    //   },
-  }),
+export const ormConfig: PostgresConnectionOptions = {
+  type: 'postgres',
+  host: process.env.POSTGRES_HOST,
+  port: Number(process.env.POSTGRES_PORT),
+  database: process.env.POSTGRES_DATABASE,
+  username: process.env.POSTGRES_USERNAME,
+  password: process.env.POSTGRES_PASSWORD,
+  entities: [__dirname + '/../domains/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
+  synchronize: false,
 };
 
-export default config;
+const dataSource = new DataSource(ormConfig);
+
+dataSource.initialize();
+
+export default dataSource;
